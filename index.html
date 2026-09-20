@@ -1,868 +1,493 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Multi-Project Dashboard</title>
-
     <!-- Tailwind CSS CDN -->
-
     <script src="https://cdn.tailwindcss.com"></script>
-
     <style>
-
         body {
-
             background-color: #050811;
-
             color: #f1f5f9;
-
             font-family: system-ui, -apple-system, sans-serif;
-
         }
-
         .blue-glow {
-
             box-shadow: 0 0 25px rgba(37, 99, 235, 0.15), inset 0 0 15px rgba(59, 130, 246, 0.05);
-
         }
-
         .blue-border {
-
             border-color: rgba(59, 130, 246, 0.3);
-
         }
-
         .silver-glow-rank {
-
             color: #e2e8f0;
-
             font-size: 1.05rem;
-
             font-weight: 600;
-
             text-shadow: 0 0 10px rgba(226, 232, 240, 0.4), 0 0 20px rgba(148, 163, 184, 0.2);
-
         }
-
         .blue-code {
-
             color: #60a5fa;
-
             font-weight: 700;
-
         }
-
     </style>
-
 </head>
-
 <body class="min-h-screen p-6">
-
     <div class="max-w-7xl mx-auto">
-
         
-
         <!-- شريط التنقل العلوي بين الصفحات -->
-
         <nav class="flex flex-wrap justify-center md:justify-start gap-4 mb-8 border-b border-blue-900/40 pb-4">
-
             <button onclick="switchTab('police')" id="nav-police" class="px-6 py-2.5 rounded-xl font-bold transition cursor-pointer bg-blue-600 text-white shadow-lg shadow-blue-600/20">
-
                 Legal Forces Roster
-
             </button>
-
             <button onclick="switchTab('special')" id="nav-special" class="px-6 py-2.5 rounded-xl font-bold transition cursor-pointer bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white border border-blue-500/20">
-
                 Special Units Roster
-
             </button>
-
             <button onclick="switchTab('project2')" id="nav-project2" class="px-6 py-2.5 rounded-xl font-bold transition cursor-pointer bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white border border-blue-500/20">
-
                 Radio Protocols & Codes
-
             </button>
-
             <button onclick="switchTab('project3')" id="nav-project3" class="px-6 py-2.5 rounded-xl font-bold transition cursor-pointer bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white border border-blue-500/20">
-
                 Department Laws Summary
-
             </button>
-
         </nav>
 
-
-
         <!-- المحتوى الأول: مشروع الشرطة (Legal Forces) -->
-
         <div id="tab-police" class="tab-content">
-
             <header class="flex flex-col md:flex-row justify-between items-center mb-8 border-b border-blue-900/40 pb-6">
-
                 <div class="flex items-center gap-5">
-
                     <img src="logo.png" alt="Logo" class="w-16 h-16 rounded-2xl object-cover border-2 border-blue-500/40 blue-glow shadow-xl" onerror="this.style.display='none'">
-
                     <div>
-
                         <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight text-white flex items-center gap-3">
-
                             <span class="w-3 h-3 rounded-full bg-blue-500 animate-pulse"></span>
-
                             The Legends Legal Forces Department Roster
-
                         </h1>
-
                         <p id="connection-status" class="text-xs text-blue-400 mt-1">Connecting to server...</p>
-
                     </div>
-
                 </div>
-
                 
-
                 <div class="mt-4 md:mt-0 flex gap-3">
-
                     <button onclick="toggleAdminMode()" id="admin-btn" class="bg-slate-800 hover:bg-slate-700 text-blue-400 border border-blue-500/30 px-4 py-2.5 rounded-xl font-medium transition cursor-pointer flex items-center gap-2">
-
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-
                         <span id="admin-btn-text">Admin Mode (Locked)</span>
-
                     </button>
-
-
 
                     <button onclick="fetchLiveRoster()" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-xl font-medium transition shadow-lg shadow-blue-600/20 cursor-pointer flex items-center gap-2">
-
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-
                         Refresh Data
-
                     </button>
-
                 </div>
-
             </header>
-
-
 
             <div id="roster-container" class="space-y-8"></div>
-
         </div>
-
-
 
         <!-- المحتوى الثاني: مشروع الوحدات الخاصة والأجنحة (Special Units Roster) -->
-
         <div id="tab-special" class="tab-content hidden">
-
             <header class="flex flex-col md:flex-row justify-between items-center mb-8 border-b border-blue-900/40 pb-6">
-
                 <div class="flex items-center gap-5">
-
                     <img src="logo.png" alt="Logo" class="w-16 h-16 rounded-2xl object-cover border-2 border-blue-500/40 blue-glow shadow-xl" onerror="this.style.display='none'">
-
                     <div>
-
                         <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight text-white flex items-center gap-3">
-
                             <span class="w-3 h-3 rounded-full bg-indigo-500 animate-pulse"></span>
-
                             Special Units & Wings Discord Roster
-
                         </h1>
-
                         <p id="special-connection-status" class="text-xs text-indigo-400 mt-1">Connecting to server...</p>
-
                     </div>
-
                 </div>
-
                 
-
                 <div class="mt-4 md:mt-0 flex gap-3">
-
                     <button onclick="toggleAdminMode()" id="special-admin-btn" class="bg-slate-800 hover:bg-slate-700 text-indigo-400 border border-indigo-500/30 px-4 py-2.5 rounded-xl font-medium transition cursor-pointer flex items-center gap-2">
-
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-
                         <span id="special-admin-btn-text">Admin Mode (Locked)</span>
-
                     </button>
-
-
 
                     <button onclick="fetchSpecialLiveRoster()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-xl font-medium transition shadow-lg shadow-indigo-600/20 cursor-pointer flex items-center gap-2">
-
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-
                         Refresh Special Units
-
                     </button>
-
                 </div>
-
             </header>
 
-
-
             <div id="special-roster-container" class="space-y-8"></div>
-
         </div>
-
-
 
         <!-- المحتوى الثالث: مشروع الأكواد والبروتوكولات (Radio Protocols) -->
-
         <div id="tab-project2" class="tab-content hidden space-y-10">
-
             <div class="mb-6">
-
                 <h2 class="text-3xl font-extrabold text-white tracking-tight mb-2">Radio Protocols & Codes</h2>
-
                 <p class="text-slate-400 text-sm">Radio calls, codes, how they are spoken, and what they mean.</p>
-
             </div>
-
-
 
             <!-- جدول الأكواد الرئيسية (Codes) -->
-
             <div class="bg-slate-900/80 border blue-border rounded-2xl shadow-xl overflow-hidden blue-glow">
-
                 <div class="bg-gradient-to-r from-blue-950/60 via-slate-900 to-slate-900 px-6 py-4 border-b border-blue-900/30 flex items-center gap-3">
-
                     <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
-
                     <h3 class="text-xl font-bold text-white tracking-wide">Codes (الأكواد الأساسية)</h3>
-
                 </div>
-
                 <div class="overflow-x-auto">
-
                     <table class="w-full text-left border-collapse" dir="rtl">
-
                         <thead>
-
                             <tr class="bg-slate-950/60 text-slate-400 uppercase text-xs tracking-wider border-b border-slate-800">
-
                                 <th class="py-3 px-6 text-right">EXAMPLE (المثال)</th>
-
                                 <th class="py-3 px-6 text-right">MEANING (المعنى)</th>
-
                                 <th class="py-3 px-6 text-right">CALL (طريقة النطق)</th>
-
                             </tr>
-
                         </thead>
-
                         <tbody class="divide-y divide-slate-800/60 text-sm">
-
                             <tr class="hover:bg-blue-950/20 transition"><td class="py-4 px-6 text-slate-100 text-right font-medium">طلب سكوت كامل في الراديُو لتمرير معلومات مهمة</td><td class="py-4 px-6 text-slate-300 text-right">أولوية في الراديو</td><td class="py-4 px-6 blue-code text-right">Code 0</td></tr>
-
                             <tr class="hover:bg-blue-950/20 transition"><td class="py-4 px-6 text-slate-100 text-right font-medium">حالة إطلاق نار في الموقع</td><td class="py-4 px-6 text-slate-300 text-right">إطلاق النار</td><td class="py-4 px-6 blue-code text-right">Code 1</td></tr>
-
                             <tr class="hover:bg-blue-950/20 transition"><td class="py-4 px-6 text-slate-100 text-right font-medium">مطاردة مشتبه به في الطريق</td><td class="py-4 px-6 text-slate-300 text-right">مطاردة</td><td class="py-4 px-6 blue-code text-right">Code 2</td></tr>
-
                             <tr class="hover:bg-blue-950/20 transition"><td class="py-4 px-6 text-slate-100 text-right font-medium">شخص يقوم ببيع مخدرات في المنطقة</td><td class="py-4 px-6 text-slate-300 text-right">بيع مخدرات</td><td class="py-4 px-6 blue-code text-right">Code 3</td></tr>
-
                             <tr class="hover:bg-blue-950/20 transition"><td class="py-4 px-6 text-slate-100 text-right font-medium">بلاغ عن سرقة منزل</td><td class="py-4 px-6 text-slate-300 text-right">سرقة منزل</td><td class="py-4 px-6 blue-code text-right">Code 4</td></tr>
-
                             <tr class="hover:bg-blue-950/20 transition"><td class="py-4 px-6 text-slate-100 text-right font-medium">عملية سطو على بقالة</td><td class="py-4 px-6 text-slate-300 text-right">سرقة بقالة</td><td class="py-4 px-6 blue-code text-right">Code 5</td></tr>
-
                             <tr class="hover:bg-blue-950/20 transition"><td class="py-4 px-6 text-slate-100 text-right font-medium">عملية سطو على بنك صغير</td><td class="py-4 px-6 text-slate-300 text-right">سرقة بنك صغير FLECCA</td><td class="py-4 px-6 blue-code text-right">Code 6</td></tr>
-
                             <tr class="hover:bg-blue-950/20 transition"><td class="py-4 px-6 text-slate-100 text-right font-medium">سرقة محل المجوهرات جارية</td><td class="py-4 px-6 text-slate-300 text-right">سرقة محل مجوهرات</td><td class="py-4 px-6 blue-code text-right">Code 7</td></tr>
-
                             <tr class="hover:bg-blue-950/20 transition"><td class="py-4 px-6 text-slate-100 text-right font-medium">السطو على البنك المركزي</td><td class="py-4 px-6 text-slate-300 text-right">سرقة بنك مركزي</td><td class="py-4 px-6 blue-code text-right">Code 8</td></tr>
-
                             <tr class="hover:bg-blue-950/20 transition"><td class="py-4 px-6 text-slate-100 text-right font-medium">احتاج سيارة للنقل</td><td class="py-4 px-6 text-slate-300 text-right">طلب وسيلة النقل</td><td class="py-4 px-6 blue-code text-right">Code 9</td></tr>
-
                             <tr class="hover:bg-blue-950/20 transition"><td class="py-4 px-6 text-slate-100 text-right font-medium">تم خطف احد افراد الشرطة</td><td class="py-4 px-6 text-slate-300 text-right">خطف شرطي</td><td class="py-4 px-6 blue-code text-right">Code 10</td></tr>
-
                             <tr class="hover:bg-blue-950/20 transition"><td class="py-4 px-6 text-slate-100 text-right font-medium">جميع الوحدات تجتمع في مركز الشرطة</td><td class="py-4 px-6 text-slate-300 text-right">اجتماع الشرطة</td><td class="py-4 px-6 blue-code text-right">Code 11</td></tr>
-
                             <tr class="hover:bg-blue-950/20 transition"><td class="py-4 px-6 text-slate-100 text-right font-medium">تم تسجيل دخول الى الخدمة</td><td class="py-4 px-6 text-slate-300 text-right">تسجيل دخول</td><td class="py-4 px-6 blue-code text-right">Code 12</td></tr>
-
                             <tr class="hover:bg-blue-950/20 transition"><td class="py-4 px-6 text-slate-100 text-right font-medium">تم تسجيل خروج من الخدمة</td><td class="py-4 px-6 text-slate-300 text-right">تسجيل خروج</td><td class="py-4 px-6 blue-code text-right">Code 13</td></tr>
-
                             <tr class="hover:bg-blue-950/20 transition"><td class="py-4 px-6 text-slate-100 text-right font-medium">بلاغ عن سرقة سيارة في منطقة</td><td class="py-4 px-6 text-slate-300 text-right">سرقة سيارة</td><td class="py-4 px-6 blue-code text-right">Code 14</td></tr>
-
                         </tbody>
-
                     </table>
-
                 </div>
-
             </div>
-
-
 
             <!-- جدول أكواد الصفر (Codes 0) -->
-
             <div class="bg-slate-900/80 border blue-border rounded-2xl shadow-xl overflow-hidden blue-glow">
-
                 <div class="bg-gradient-to-r from-blue-950/60 via-slate-900 to-slate-900 px-6 py-4 border-b border-blue-900/30 flex items-center gap-3">
-
                     <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
-
                     <h3 class="text-xl font-bold text-white tracking-wide">Codes 0</h3>
-
                 </div>
-
                 <div class="overflow-x-auto">
-
                     <table class="w-full text-left border-collapse" dir="rtl">
-
                         <thead>
-
                             <tr class="bg-slate-950/60 text-slate-400 uppercase text-xs tracking-wider border-b border-slate-800">
-
                                 <th class="py-3 px-6 text-right">EXAMPLE (المثال)</th>
-
                                 <th class="py-3 px-6 text-right">MEANING (المعنى)</th>
-
                                 <th class="py-3 px-6 text-right">CALL (طريقة النطق)</th>
-
                             </tr>
-
                         </thead>
-
                         <tbody class="divide-y divide-slate-800/60 text-sm">
-
                             <tr class="hover:bg-blue-950/20 transition"><td class="py-4 px-6 text-slate-100 text-right font-medium">هل أنت في الاستماع ؟</td><td class="py-4 px-6 text-slate-300 text-right">هل أنت في الخدمة</td><td class="py-4 px-6 blue-code text-right">0-2</td></tr>
-
                             <tr class="hover:bg-blue-950/20 transition"><td class="py-4 px-6 text-slate-100 text-right font-medium">أرسل، أنا أستمع</td><td class="py-4 px-6 text-slate-300 text-right">في الاستماع</td><td class="py-4 px-6 blue-code text-right">0-3</td></tr>
-
                         </tbody>
-
                     </table>
-
                 </div>
-
             </div>
-
-
 
             <!-- جدول أكواد العشرة (Codes 10) -->
-
             <div class="bg-slate-900/80 border blue-border rounded-2xl shadow-xl overflow-hidden blue-glow">
-
                 <div class="bg-gradient-to-r from-blue-950/60 via-slate-900 to-slate-900 px-6 py-4 border-b border-blue-900/30 flex items-center gap-3">
-
                     <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
-
                     <h3 class="text-xl font-bold text-white tracking-wide">Codes 10</h3>
-
                 </div>
-
                 <div class="overflow-x-auto">
-
                     <table class="w-full text-left border-collapse" dir="rtl">
-
                         <thead>
-
                             <tr class="bg-slate-950/60 text-slate-400 uppercase text-xs tracking-wider border-b border-slate-800">
-
                                 <th class="py-3 px-6 text-right">EXAMPLE (المثال)</th>
-
                                 <th class="py-3 px-6 text-right">MEANING (المعنى)</th>
-
                                 <th class="py-3 px-6 text-right">CALL (طريقة النطق)</th>
-
                             </tr>
-
                         </thead>
-
                         <tbody class="divide-y divide-slate-800/60 text-sm">
-
                             <tr class="hover:bg-blue-950/20 transition"><td class="py-4 px-6 text-slate-100 text-right font-medium">لا توجد نتائج</td><td class="py-4 px-6 text-slate-300 text-right">سلبي</td><td class="py-4 px-6 blue-code text-right">10-2</td></tr>
-
                             <tr class="hover:bg-blue-950/20 transition"><td class="py-4 px-6 text-slate-100 text-right font-medium">تم الاستلام</td><td class="py-4 px-6 text-slate-300 text-right">وصلت الرسالة</td><td class="py-4 px-6 blue-code text-right">10-4</td></tr>
-
                             <tr class="hover:bg-blue-950/20 transition"><td class="py-4 px-6 text-slate-100 text-right font-medium">احتاج دعم اضافي</td><td class="py-4 px-6 text-slate-300 text-right">طلب تعزيز</td><td class="py-4 px-6 blue-code text-right">10-5</td></tr>
-
                             <tr class="hover:bg-blue-950/20 transition"><td class="py-4 px-6 text-slate-100 text-right font-medium">اعد اخر رسالة</td><td class="py-4 px-6 text-slate-300 text-right">اعادة الرسالة</td><td class="py-4 px-6 blue-code text-right">10-9</td></tr>
-
                         </tbody>
-
                     </table>
-
                 </div>
-
             </div>
-
-
 
             <!-- خريطة القطاعات -->
-
             <div class="bg-slate-900/80 border blue-border rounded-2xl shadow-xl overflow-hidden blue-glow">
-
                 <div class="bg-gradient-to-r from-blue-950/60 via-slate-900 to-slate-900 px-6 py-4 border-b border-blue-900/30 flex items-center gap-3">
-
                     <span class="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse"></span>
-
                     <h3 class="text-xl font-bold text-white tracking-wide">خريطة مناطق والقطاعات الأمنية (Sectors Map)</h3>
-
                 </div>
-
                 <div class="p-6 flex flex-col items-center justify-center bg-slate-950/40">
-
                     <div class="w-full max-w-4xl rounded-2xl overflow-hidden border-[2.5px] border-blue-400/50 shadow-[0_0_35px_rgba(59,130,246,0.25)] bg-slate-950 p-3 relative group blue-glow">
-
                         <img src="map.png" alt="Jurisdiction Sectors Map" class="w-full h-auto object-contain rounded-xl transition-transform duration-500 group-hover:scale-[1.015]">
-
                     </div>
-
                 </div>
-
             </div>
-
         </div>
-
-
 
         <!-- المحتوى الرابع: قوانين وزارة الداخلية الشاملة -->
-
-        <div id="tab-project3" class="tab-content hidden space-y-10">
-
+        <div id="tab-project3" class="tab-content hidden space-y-10" dir="rtl">
             <div class="mb-6">
-
                 <h2 class="text-3xl font-extrabold text-white tracking-tight">Department Laws Summary (1 to 16)</h2>
-
+                <p class="text-slate-400 text-sm mt-1">الملخص الشامل لقوانين وأنظمة وزارة الداخلية لسيرفر Prime Legends</p>
             </div>
 
-            <!-- الجداول الخاصة بالقوانين تبقى كما هي -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- قسم 1 -->
+                <div class="bg-slate-900/80 border blue-border rounded-2xl p-6 shadow-xl blue-glow">
+                    <h3 class="text-xl font-bold text-blue-400 mb-3 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-500"></span>1. السلوكيات العامة والالتزام العسكري</h3>
+                    <ul class="space-y-2 text-slate-300 text-sm list-disc list-inside">
+                        <li><strong>الجدية والاحترافية:</strong> منع التسلط، فرض الاحترام المتبادل، ومنع المزح أو السلوك الكوميدي لضمان تقمص الشخصية العسكرية بأقصى درجة.</li>
+                        <li><strong>اللباس والمعدات:</strong> الالتزام التام بالملابس، المركبات، والأسلحة المخصصة للرتبة، ويمنع منعاً باتاً بيع أو إعطاء معدات الشرطة للمواطنين أو المسعفين (يعاقب عليها بالفاند النهائي).</li>
+                        <li><strong>التحية العسكرية:</strong> إجبارية داخل أقسام الشرطة فقط، وتمنع منعاً باتاً داخل الميدان.</li>
+                        <li><strong>الراديو:</strong> الاستخدام مقتصر على التبليغ الرسمي بالبروتوكولات العسكرية، مع منع المناقشة أو المزح أو مقاطعة البلاغات.</li>
+                    </ul>
+                </div>
 
+                <!-- قسم 2 -->
+                <div class="bg-slate-900/80 border blue-border rounded-2xl p-6 shadow-xl blue-glow">
+                    <h3 class="text-xl font-bold text-blue-400 mb-3 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-500"></span>2. الاستيقاف المروري والجنائي</h3>
+                    <ul class="space-y-2 text-slate-300 text-sm list-disc list-inside">
+                        <li><strong>المروري:</strong> يبدأ بتشغيل السفتي (Q/A و ALT)، الوقوف بمحاذاة مركبة المخالف من اليسار، إطفاء محرك مركبة المواطن، وتبليغ العمليات بالمواصفات والسبب بكل احترام وتعرّيف رسمي.</li>
+                        <li><strong>الجنائي:</strong> يتم في حالات الخطف، الإسقاط، القتل، والسرقات. ويتطلب طلب الدعم، إذن الاستيقاف، وتنزيل الشخص برفع الأيدي واتباع خطوات تفتيش دقيقة مع ذكر الحقوق القانونية.</li>
+                    </ul>
+                </div>
+
+                <!-- قسم 3 -->
+                <div class="bg-slate-900/80 border blue-border rounded-2xl p-6 shadow-xl blue-glow">
+                    <h3 class="text-xl font-bold text-blue-400 mb-3 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-500"></span>3. التعامل مع المجرمين والسجن</h3>
+                    <ul class="space-y-2 text-slate-300 text-sm list-disc list-inside">
+                        <li><strong>إجراءات القبض:</strong> تلاوة الحقوق بحرفيتها دون تحريف، إعطاء فرصة للتبرير، وتفتيش المجرم وسحب الممنوعات وتصويره وتبصيمه قبل دخوله الزنزانة.</li>
+                        <li><strong>التخفيضات والعقوبات:</strong> يخصم 70% من المحكومية حال الاعتراف بوجود محامي، و50% للإقرار الكامل، بينما يخصم 25% عند التأخر على المواطن. ويمنع إرسال شخص للسجن بدون دليل مثبت.</li>
+                    </ul>
+                </div>
+
+                <!-- قسم 4 -->
+                <div class="bg-slate-900/80 border blue-border rounded-2xl p-6 shadow-xl blue-glow">
+                    <h3 class="text-xl font-bold text-blue-400 mb-3 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-500"></span>4. قوانين المطاردات والاستيقاف الإجباري</h3>
+                    <ul class="space-y-2 text-slate-300 text-sm list-disc list-inside">
+                        <li><strong>الاستجابة:</strong> بحد أقصى 3 دوريات وبأمر من الديسباتش، مع تحديث البلاغ باستمرار.</li>
+                        <li><strong>الصدم (الاستيقاف الإجباري):</strong> مسموح بعد مرور 4-5 دقائق من المطاردة، أو في حالات تعريض حياة المواطنين للخطر وصدم دوريات الشرطة عمداً، على ألا تتجاوز السرعة 150 كم في أماكن خالية وبإذن مسبق وبطريقة احترافية محددة.</li>
+                    </ul>
+                </div>
+
+                <!-- قسم 5 -->
+                <div class="bg-slate-900/80 border blue-border rounded-2xl p-6 shadow-xl blue-glow">
+                    <h3 class="text-xl font-bold text-blue-400 mb-3 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-500"></span>5. قوانين إطلاق النار، التيزر، والنطح</h3>
+                    <ul class="space-y-2 text-slate-300 text-sm list-disc list-inside">
+                        <li><strong>إطلاق النار:</strong> ممنوع تماماً بدون تحذير لفظي أو طلقة تحذيرية، ولا يُشرع إلا عند مبادرة المجرمين بإطلاق النار أو رفع السلاح تجاه العسكري، مع حالات محددة لتشغيل الكفرات.</li>
+                        <li><strong>التيزر والنطح:</strong> التيزر يُستخدم ضد حاملي الأسلحة البيضاء أو المتجهين للسيارات/الدباب/البحر (وممنوع ضد السلاح الناري). النطح مسموح بشروط (منع نطح حاملي الأسلحة النارية أو راكبي الدبابات وبفارق 5 ثوانٍ بين النطحة والأخرى).</li>
+                    </ul>
+                </div>
+
+                <!-- قسم 6 -->
+                <div class="bg-slate-900/80 border blue-border rounded-2xl p-6 shadow-xl blue-glow">
+                    <h3 class="text-xl font-bold text-blue-400 mb-3 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-500"></span>6. التعامل مع الطاقم الطبي والمستشفى</h3>
+                    <ul class="space-y-2 text-slate-300 text-sm list-disc list-inside">
+                        <li>منع ترك المسقطين على أرضية المستشفى ووضعهم بالأسرّة المخصصة، منع التصرف كمسعف، عدم رفع السلاح الناري داخل المستشفى والاكتفاء بالتيزر، وإعطاء المسعف وقته الكامل لعلاج الحالات أو الرهائن.</li>
+                    </ul>
+                </div>
+
+                <!-- قسم 7 -->
+                <div class="bg-slate-900/80 border blue-border rounded-2xl p-6 shadow-xl blue-glow">
+                    <h3 class="text-xl font-bold text-blue-400 mb-3 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-500"></span>7. شروط الخروج الآمن والتفاوض</h3>
+                    <ul class="space-y-2 text-slate-300 text-sm list-disc list-inside">
+                        <li><strong>الخروج الآمن:</strong> له شروط دقيقة (أرضية أو جوية) وتفشل في حالات التدخل الخارجي، الصدم المتعمد، عكس السير المتكرر، استخدام النيترو، أو الدخول لأماكن ضيقة.</li>
+                        <li><strong>التفاوض:</strong> المفاوض هو المسؤول الأول عن السرقة، ويمنع مقاطعة المفاوضين أو إحداث فوضى، وتُحدد شروط وقواعد صارمة للخصومات الزمنية في حال مخالفة الشروط.</li>
+                    </ul>
+                </div>
+
+                <!-- قسم 8 -->
+                <div class="bg-slate-900/80 border blue-border rounded-2xl p-6 shadow-xl blue-glow">
+                    <h3 class="text-xl font-bold text-blue-400 mb-3 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-500"></span>8. الحالات الجنائية، الإعدام، والوحدات</h3>
+                    <ul class="space-y-2 text-slate-300 text-sm list-disc list-inside">
+                        <li><strong>أعداد الوحدات:</strong> سرقة الـ ATM والبقالة بحد أقصى 3 وحدات، وسرقة المنازل بحد أقصى 4 وحدات.</li>
+                        <li><strong>الإعدام:</strong> يُطبق في حالات تجاوز المحكومية الغير منفذة 60-70 شهراً، التحريض على خطف أو قتل الموظفين الحكوميين، تكرار بيع الأسلحة (5 تقارير)، أو إدارة مصانع أسلحة غير قانونية.</li>
+                    </ul>
+                </div>
+
+                <!-- قسم 9 -->
+                <div class="bg-slate-900/80 border blue-border rounded-2xl p-6 shadow-xl blue-glow md:col-span-2">
+                    <h3 class="text-xl font-bold text-blue-400 mb-3 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-500"></span>9. أقسام الشرطة، SWAT، والمداهمات</h3>
+                    <ul class="space-y-2 text-slate-300 text-sm list-disc list-inside">
+                        <li><strong>الأقسام الرئيسية:</strong> إدارة الشرطة، الشؤون الداخلية (مسؤولة عن العقوبات والشكاوى)، والأكاديمية FTO (مسؤولة عن التدريب والقبول).</li>
+                        <li><strong>قوانين SWAT:</strong> يتدخلون بالأسلحة الثقيلة بأمر من رئيس الفرقة، ولهم صلاحية القبض في قضايا الفساد، ومداهمة مقرات العصابات والمافيا والمؤبد للمجرمين.</li>
+                        <li><strong>المداهمات:</strong> تتطلب أمراً رسمياً من الوزير أو نائبه أو الجينرال، مع وجود أدلة موثقة أو مقاطع فيديو في حال الاشتباك داخل المقرات.</li>
+                    </ul>
+                </div>
+            </div>
         </div>
-
-
 
     </div>
 
-
-
     <script>
-
         const API_URL = 'https://lspd-bot-production-8924.up.railway.app/api/roster';
-
         const SPECIAL_API_URL = 'https://lspd-bot-production-8924.up.railway.app/api/special-units';
 
-
-
         let officers = [];
-
         let specialOfficers = [];
-
         let isAdmin = false;
 
-
-
         const CATEGORY_ORDER = [
-
             "Legal Forces",
-
             "Police Upper Administration",
-
             "Police Administration",
-
             "Supervisors",
-
             "Patrol Units",
-
             "Cadets"
-
         ];
-
-
-
-        // ترتيب الفئات والأجنحة الخاصة في الواجهة
 
         const SPECIAL_CATEGORY_ORDER = [
-
             "Special Unit Chief",
-
             "Negotiator Wing",
-
             "Motorcycle Wing",
-
             "Air Support Wing",
-
             "Speed Unit Wing",
-
             "Watch Command"
-
         ];
 
-
-
         function switchTab(tabName) {
-
             const policeTab = document.getElementById('tab-police');
-
             const specialTab = document.getElementById('tab-special');
-
             const project2Tab = document.getElementById('tab-project2');
-
             const project3Tab = document.getElementById('tab-project3');
-
             
-
             const navPolice = document.getElementById('nav-police');
-
             const navSpecial = document.getElementById('nav-special');
-
             const navProject2 = document.getElementById('nav-project2');
-
             const navProject3 = document.getElementById('nav-project3');
 
-
-
             policeTab.classList.add('hidden');
-
             specialTab.classList.add('hidden');
-
             project2Tab.classList.add('hidden');
-
             project3Tab.classList.add('hidden');
 
-
-
             const defaultNavClass = "px-6 py-2.5 rounded-xl font-bold transition cursor-pointer bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white border border-blue-500/20";
-
             const activeNavClass = "px-6 py-2.5 rounded-xl font-bold transition cursor-pointer bg-blue-600 text-white shadow-lg shadow-blue-600/20";
-
             const activeSpecialNavClass = "px-6 py-2.5 rounded-xl font-bold transition cursor-pointer bg-indigo-600 text-white shadow-lg shadow-indigo-600/20";
 
-
-
             navPolice.className = defaultNavClass;
-
             navSpecial.className = defaultNavClass;
-
             navProject2.className = defaultNavClass;
-
             navProject3.className = defaultNavClass;
 
-
-
             if (tabName === 'police') {
-
                 policeTab.classList.remove('hidden');
-
                 navPolice.className = activeNavClass;
-
             } else if (tabName === 'special') {
-
                 specialTab.classList.remove('hidden');
-
                 navSpecial.className = activeSpecialNavClass;
-
             } else if (tabName === 'project2') {
-
                 project2Tab.classList.remove('hidden');
-
                 navProject2.className = activeNavClass;
-
             } else if (tabName === 'project3') {
-
                 project3Tab.classList.remove('hidden');
-
                 navProject3.className = activeNavClass;
-
             }
-
         }
-
-
 
         function toggleAdminMode() {
-
             if (isAdmin) {
-
                 isAdmin = false;
-
                 document.getElementById('admin-btn-text').textContent = 'Admin Mode (Locked)';
-
                 document.getElementById('special-admin-btn-text').textContent = 'Admin Mode (Locked)';
-
                 document.getElementById('admin-btn').className = 'bg-slate-800 hover:bg-slate-700 text-blue-400 border border-blue-500/30 px-4 py-2.5 rounded-xl font-medium transition cursor-pointer flex items-center gap-2';
-
                 document.getElementById('special-admin-btn').className = 'bg-slate-800 hover:bg-slate-700 text-indigo-400 border border-indigo-500/30 px-4 py-2.5 rounded-xl font-medium transition cursor-pointer flex items-center gap-2';
-
                 alert('تم إيقاف وضع المشرف بنجاح.');
-
                 renderRoster();
-
                 renderSpecialRoster();
-
             } else {
-
                 const password = prompt('الرجاء إدخال الرمز السري للمشرف:');
-
                 if (password === '1444') {
-
                     isAdmin = true;
-
                     document.getElementById('admin-btn-text').textContent = 'Admin Mode (Active)';
-
                     document.getElementById('special-admin-btn-text').textContent = 'Admin Mode (Active)';
-
                     document.getElementById('admin-btn').className = 'bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-500/30 px-4 py-2.5 rounded-xl font-medium transition cursor-pointer flex items-center gap-2';
-
                     document.getElementById('special-admin-btn').className = 'bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-500/30 px-4 py-2.5 rounded-xl font-medium transition cursor-pointer flex items-center gap-2';
-
                     alert('مرحباً بك، تم تفعيل وضع المشرف بنجاح!');
-
                     renderRoster();
-
                     renderSpecialRoster();
-
                 } else if (password !== null) {
-
                     alert('الرمز السري غير صحيح!');
-
                 }
-
             }
-
         }
-
-
 
         async function fetchLiveRoster() {
-
             const statusEl = document.getElementById('connection-status');
-
             statusEl.textContent = 'Fetching data from server...';
-
             try {
-
                 const response = await fetch(API_URL);
-
                 if (!response.ok) throw new Error(`Server returned status ${response.status}`);
-
                 officers = await response.json();
-
                 statusEl.textContent = `Connected successfully (${officers.length} records found)`;
-
                 statusEl.className = 'text-xs text-emerald-400 mt-1 font-semibold';
-
                 renderRoster();
-
             } catch (err) {
-
                 statusEl.textContent = `Connection Error: Check Railway Backend`;
-
                 statusEl.className = 'text-xs text-rose-400 mt-1';
-
                 renderRoster();
-
             }
-
         }
-
-
 
         async function fetchSpecialLiveRoster() {
-
             const statusEl = document.getElementById('special-connection-status');
-
             statusEl.textContent = 'Fetching special units from server...';
-
             try {
-
                 const response = await fetch(SPECIAL_API_URL);
-
                 if (!response.ok) throw new Error(`Server returned status ${response.status}`);
-
                 specialOfficers = await response.json();
-
                 statusEl.textContent = `Connected successfully (${specialOfficers.length} records found)`;
-
                 statusEl.className = 'text-xs text-emerald-400 mt-1 font-semibold';
-
                 renderSpecialRoster();
-
             } catch (err) {
-
                 statusEl.textContent = `Connection Error (Awaiting live endpoint response)`;
-
                 statusEl.className = 'text-xs text-amber-400 mt-1';
-
                 specialOfficers = [];
-
                 renderSpecialRoster();
-
             }
-
         }
-
-
 
         function renderRoster() {
-
             const container = document.getElementById('roster-container');
-
             container.innerHTML = '';
-
             if (!Array.isArray(officers) || officers.length === 0) {
-
                 container.innerHTML = `<div class="bg-slate-900/80 border blue-border rounded-2xl p-12 text-center text-slate-400 blue-glow"><p class="font-medium text-lg text-slate-200">No personnel records found from the server.</p></div>`;
-
                 return;
-
             }
-
             const grouped = {};
-
             CATEGORY_ORDER.forEach(cat => grouped[cat] = []);
-
             officers.forEach(officer => {
-
                 const cat = officer.category && grouped[officer.category] ? officer.category : "Cadets";
-
                 grouped[cat].push(officer);
-
             });
-
             CATEGORY_ORDER.forEach(categoryName => {
-
                 const catOfficers = grouped[categoryName];
-
                 if (!catOfficers || catOfficers.length === 0) return;
-
                 const sectionDiv = document.createElement('div');
-
                 sectionDiv.className = 'bg-slate-900/70 border blue-border rounded-2xl shadow-xl overflow-hidden blue-glow backdrop-blur-md';
-
                 let rowsHtml = '';
-
                 catOfficers.forEach(officer => {
-
                     const actionButtonHtml = isAdmin ? `
-
                         <button onclick="deleteOfficer('${officer.id}')" class="text-rose-400 hover:text-rose-300 font-medium text-sm transition cursor-pointer px-3 py-1 rounded-lg hover:bg-rose-500/10">Delete</button>
-
                     ` : `<span class="text-slate-500 text-xs italic">Locked</span>`;
-
                     rowsHtml += `
-
                         <tr class="hover:bg-blue-950/20 transition border-b border-black/60 last:border-none">
-
                             <td class="py-4 px-6 flex items-center gap-3">
-
                                 <img src="${officer.avatar || 'https://via.placeholder.com/40'}" alt="" class="w-10 h-10 rounded-full bg-slate-800 object-cover border border-blue-500/30">
-
                                 <span class="font-semibold text-slate-100">${officer.name || 'Unknown'}</span>
-
                             </td>
-
                             <td class="py-4 px-6 silver-glow-rank">${officer.rank || 'Member'}</td>
-
                             <td class="py-4 px-6 text-blue-400 font-mono text-sm font-bold">[${officer.badge || 'N/A'}]</td>
-
                             <td class="py-4 px-6"><span class="px-3 py-1 text-xs rounded-full font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">${officer.status || 'Active'}</span></td>
-
                             <td class="py-4 px-6 text-right">${actionButtonHtml}</td>
-
                         </tr>
-
                     `;
-
                 });
-
                 sectionDiv.innerHTML = `
-
                     <div class="bg-gradient-to-r from-blue-950/60 via-slate-900 to-slate-900 px-6 py-4 border-b border-blue-900/30 flex justify-between items-center">
-
                         <h2 class="text-lg font-bold text-blue-200 tracking-wide flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-500"></span>${categoryName}</h2>
-
                         <span class="text-xs px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-300 border border-blue-500/20 font-medium">${catOfficers.length} Members</span>
-
                     </div>
-
                     <div class="overflow-x-auto">
-
                         <table class="w-full text-left border-collapse">
-
                             <thead><tr class="bg-slate-950/40 text-slate-400 uppercase text-xs tracking-wider border-b border-black"><th class="py-3 px-6">Officer / Member</th><th class="py-3 px-6">Rank</th><th class="py-3 px-6">Badge / ID</th><th class="py-3 px-6">Status</th><th class="py-3 px-6 text-right">Actions</th></tr></thead>
-
                             <tbody class="divide-y divide-black/60">${rowsHtml}</tbody>
-
                         </table>
-
                     </div>
-
                 `;
-
                 container.appendChild(sectionDiv);
-
             });
-
         }
-
-
-
-        function renderSpecialRoster() {
-
-            const container = document.getElementById('special-roster-container');
-
-            container.innerHTML = '';
-
-            if (!Array.isArray(specialOfficers) || specialOfficers.length === 0) {
-
-                container.innerHTML = `<div class="bg-slate-900/80 border border-indigo-500/30 rounded-2xl p-12 text-center text-slate-400 blue-glow"><p class="font-medium text-lg text-slate-200">No special unit records found or endpoint is connecting...</p></div>`;
-
-                return;
-
-            }
-
-            const grouped = {};
-
-            SPECIAL_CATEGORY_ORDER.forEach(cat => grouped[cat] = []);
-
-            specialOfficers.forEach(operative => {
-
-                const cat = operative.category && grouped[operative.category] ? operative.category : "Watch Command";
-
-                grouped[cat].push(operative);
-
-            });
-
-            SPECIAL_CATEGORY_ORDER.forEach(categoryName => {
-
-                const catOperatives = grouped[categoryName];
-
-                if (!catOperatives || catOperatives.length === 0) return;
-
-                const sectionDiv = document.createElement('div');
-
-                sectionDiv.className = 'bg-slate-900/70 border border-indigo-500/30 rounded-2xl shadow-xl overflow-hidden blue-glow backdrop-blur-md';
-
-                let rowsHtml = '';
-
-                catOperatives.forEach(operative => {
-
-                    const actionButtonHtml = isAdmin ? `
-
-                        <button onclick="deleteSpecialOfficer('${operative.id}')" class="text-rose-400 hover:text-rose-300 font-medium text-sm transition cursor-pointer px-3 py-1 rounded-lg hover:bg-rose-500/10">Delete</button>
-
-                    ` : `<span class="text-slate-500 text-xs italic">Locked</span>`;
-
-                    rowsHtml += `
-
-                        <tr class="hover:bg-indigo-950/20 transition border-b border-black/60 last:border-none">
-
-                            <td class="py-4 px-6 flex items-center gap-3">
-
-                                <img src="${operative.avatar || 'https://via.placeholder.com/40'}" alt="" class= 
-
+    </script>
+</body>
+</html>
